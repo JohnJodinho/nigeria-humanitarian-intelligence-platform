@@ -285,11 +285,14 @@ CALCULATE(
 
 // 2. Sector-Specific People in Need (For Sector Bar Charts & Cluster Breakdowns)
 Sector PIN = 
+VAR _MaxPeriod = CALCULATE(MAX('Fact Needs Demographics'[reference_period_start]), ALL('Fact Needs Demographics'))
+RETURN
 CALCULATE(
     SUM('Fact Needs Demographics'[population]),
     LOWER('Fact Needs Demographics'[category]) = "total",
     'Fact Needs Demographics'[population_status] = "INN",
-    'Fact Needs Demographics'[sector_code] <> "INTERSECTORAL"
+    'Fact Needs Demographics'[sector_code] <> "INTERSECTORAL",
+    'Fact Needs Demographics'[reference_period_start] = _MaxPeriod
 )
 
 // 3. Total People Targeted
@@ -434,4 +437,5 @@ Summary Subtitle Text =
 2. In Power BI Service: Settings > Data source credentials > enter pooler credentials (`Basic`, `postgres.<ref>`, password).
 3. Set **Daily Scheduled Refresh** at `03:00 AM UTC`.
 4. Pin KPI visual tiles to create the **Executive Dashboard**.
+
 
