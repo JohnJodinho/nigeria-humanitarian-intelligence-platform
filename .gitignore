@@ -1,0 +1,56 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Raw Data Downloads & Temporary Files
+data/raw/
+*.tmp
+*.log
+
+# Reconnaissance & Scratch Artifacts
+hdx-hapi-docs/
+deep_recon.py
+run_migrations.py
+hdx-hapi-docs.txt
+openapi.json
+HDX_HAPI_NIGERIA_TECHNICAL_RECONNAISSANCE.md
+hdx_api_reference.md
+IMPLEMENTATION_PLAN.md
+
+# Learning & Walkthrough Guides (User Reference)
+STEP_BY_STEP_LEARNING_LOG.md
+POWER_BI_STEP_BY_STEP_GUIDE.md
+*_LOG.md
+*learning_log*
+*power_bi*
+
+# IDE & OS Specific
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Additional root scratch files
+getting_started.md
+*.py
+!src/**/*.py
+!tests/**/*.py
+
+
+IMPLEMENTATION_PLAN.md
+*IMPLEMENTATION_PLAN*
+

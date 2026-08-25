@@ -1,0 +1,7 @@
+-- =============================================================================
+-- Phase 1: 001_init_extensions.sql
+-- Enable PostGIS spatial engine and cryptographic/UUID extensions
+-- =============================================================================
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

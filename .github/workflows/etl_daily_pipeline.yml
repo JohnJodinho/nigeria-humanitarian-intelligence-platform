@@ -1,0 +1,51 @@
+name: N-HIP Daily Automated ETL Pipeline
+
+on:
+  schedule:
+    # Runs at 02:00 UTC every day (03:00 AM West Africa Time)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      country_code:
+        description: 'ISO3 Country Code to Ingest'
+        required: true
+        default: 'NGA'
+
+jobs:
+  run-ingestion-pipeline:
+    name: Execute HDX HAPI Ingestion & Spatial Seeding
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Production Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute N-HIP Master Pipeline Orchestrator
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          HDX_HAPI_APP_NAME: ${{ secrets.HDX_HAPI_APP_NAME || 'NigeriaHIMS' }}
+          HDX_HAPI_EMAIL: ${{ secrets.HDX_HAPI_EMAIL || 'pipeline@humdata.org' }}
+          TARGET_COUNTRY_CODE: ${{ github.event.inputs.country_code || 'NGA' }}
+        run: |
+          python -m src.pipeline.orchestrator --country ${{ env.TARGET_COUNTRY_CODE }}
+
+      - name: Pipeline Execution Summary
+        if: always()
+        run: |
+          echo "### 🚀 N-HIP Daily ETL Pipeline Status" >> $GITHUB_STEP_SUMMARY
+          echo "Pipeline executed at $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Country:** ${{ env.TARGET_COUNTRY_CODE }}" >> $GITHUB_STEP_SUMMARY
