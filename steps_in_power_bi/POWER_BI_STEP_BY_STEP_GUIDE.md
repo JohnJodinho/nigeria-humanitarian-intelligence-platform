@@ -283,7 +283,16 @@ CALCULATE(
     REMOVEFILTERS('LGA Summary'[partner_presence_density_per_10k_pin])
 )
 
-// 2. Total People Targeted
+// 2. Sector-Specific People in Need (For Sector Bar Charts & Cluster Breakdowns)
+Sector PIN = 
+CALCULATE(
+    SUM('Fact Needs Demographics'[population]),
+    LOWER('Fact Needs Demographics'[category]) = "total",
+    'Fact Needs Demographics'[population_status] = "INN",
+    'Fact Needs Demographics'[sector_code] <> "INTERSECTORAL"
+)
+
+// 3. Total People Targeted
 Total Targeted = 
 SUM('LGA Summary'[people_targeted])
 
@@ -425,3 +434,4 @@ Summary Subtitle Text =
 2. In Power BI Service: Settings > Data source credentials > enter pooler credentials (`Basic`, `postgres.<ref>`, password).
 3. Set **Daily Scheduled Refresh** at `03:00 AM UTC`.
 4. Pin KPI visual tiles to create the **Executive Dashboard**.
+
