@@ -33,10 +33,9 @@ IMPLEMENTATION_PLAN.md
 
 # Learning & Walkthrough Guides (User Reference)
 STEP_BY_STEP_LEARNING_LOG.md
-POWER_BI_STEP_BY_STEP_GUIDE.md
 *_LOG.md
 *learning_log*
-*power_bi*
+
 
 # IDE & OS Specific
 .vscode/
@@ -53,4 +52,5 @@ getting_started.md
 
 IMPLEMENTATION_PLAN.md
 *IMPLEMENTATION_PLAN*
+
 
