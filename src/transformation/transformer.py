@@ -98,7 +98,8 @@ class DataTransformer:
         if not raw_records:
             return []
         df = pd.DataFrame(raw_records)
-        df = df.drop_duplicates(subset=["admin2_code", "sector_code", "category", "reference_period_start"])
+        df["category"] = df["category"].astype(str).str.strip().str.title()
+        df = df.drop_duplicates(subset=["admin2_code", "sector_code", "category", "population_status", "reference_period_start"])
         return clean_dataframe(df).to_dict(orient="records")
 
     @staticmethod
@@ -120,4 +121,5 @@ class DataTransformer:
         df["org_acronym"] = df["org_acronym"].astype(str).str.strip().str.upper()
         df = df.drop_duplicates(subset=["admin2_code", "org_acronym", "sector_code", "reference_period_start"])
         return clean_dataframe(df).to_dict(orient="records")
+
 
