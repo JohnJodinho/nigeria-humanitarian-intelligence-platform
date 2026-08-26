@@ -35,7 +35,7 @@
    - **User**: `postgres.<project-ref>` (e.g. `postgres.fusxxjppszljvwfgcfhr`)
    - **Password**: `<your-supabase-database-password>`
 3. **Boundary Shapefiles**:
-   - `data/spatial/nga_admin1_boundaries.geojson` (located in your local project folder).
+   - `data/spatial/nigeria_state_boundaries.json` (located in your local project folder).
 
 ---
 
@@ -430,7 +430,7 @@ RETURN
 ## 8. Custom Nigeria Shape Map Setup
 1. In Power BI Desktop: **File** > **Options and settings** > **Options** > **Preview features** > check **Shape map visual** > click **OK**.
 2. Insert **Shape Map** > drag `State Profile[state_name]` to **Location**.
-3. In **Format visual** > **Map settings** > **Map type** = **Custom map** > Browse to `data/spatial/nga_admin1_boundaries.geojson`.
+3. In **Format visual** > **Map settings** > **Map type** = **Custom map** > Browse to `data/spatial/nigeria_state_boundaries.json`.
 
 ---
 
@@ -447,6 +447,7 @@ RETURN
 2. In Power BI Service: Settings > Data source credentials > enter pooler credentials (`Basic`, `postgres.<ref>`, password).
 3. Set **Daily Scheduled Refresh** at `03:00 AM UTC`.
 4. Pin KPI visual tiles to create the **Executive Dashboard**.
+
 
 
 

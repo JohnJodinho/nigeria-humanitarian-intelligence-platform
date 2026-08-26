@@ -7,3 +7,5 @@ geopandas>=0.14.0
 shapely>=2.0.0
 SQLAlchemy>=2.0.0
 psycopg2-binary>=2.9.9
+
+topojson>=1.5
