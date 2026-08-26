@@ -364,9 +364,19 @@ VAR _TotalQuarantined = SUM('Pipeline Observability'[records_quarantined])
 RETURN
 IF(_TotalExtracted > 0, 1 - DIVIDE(_TotalQuarantined, _TotalExtracted, 0), 1)
 
-// 15. Dynamic Header Subtitle Text
+// 15. Dynamic Executive Header Subtitle Text (Page 1)
 Summary Subtitle Text = 
-"Data Source: UN OCHA HDX HAPI | 2025 HNO Assessment Cycle | " & FORMAT([Affected LGAs Count], "#,0") & " Priority LGAs"
+VAR _MaxYear = YEAR(CALCULATE(MAX('Fact Needs Demographics'[reference_period_start]), ALL('Fact Needs Demographics')))
+VAR _LgaCount = [Affected LGAs Count]
+RETURN
+"Data Source: UN OCHA HDX HAPI | " & _MaxYear & " HNO Assessment Cycle | " & FORMAT(_LgaCount, "#,0") & " Priority LGAs"
+
+// 16. Dynamic Sector Vulnerability Subtitle Text (Page 2)
+Page 2 Dynamic Subtitle = 
+VAR _MaxYear = YEAR(CALCULATE(MAX('Fact Needs Demographics'[reference_period_start]), ALL('Fact Needs Demographics')))
+VAR _LgaCount = [Affected LGAs Count]
+RETURN
+"Data Source: UN OCHA HNO " & _MaxYear & " Assessment Cycle | " & FORMAT(_LgaCount, "#,0") & " Affected LGAs | Multi-Sector Intersectoral Assessment"
 ```
 
 ---
@@ -437,6 +447,7 @@ Summary Subtitle Text =
 2. In Power BI Service: Settings > Data source credentials > enter pooler credentials (`Basic`, `postgres.<ref>`, password).
 3. Set **Daily Scheduled Refresh** at `03:00 AM UTC`.
 4. Pin KPI visual tiles to create the **Executive Dashboard**.
+
 
 
 
