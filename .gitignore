@@ -23,18 +23,12 @@ data/raw/
 
 # Reconnaissance & Scratch Artifacts
 hdx-hapi-docs/
-deep_recon.py
 run_migrations.py
-hdx-hapi-docs.txt
-openapi.json
-HDX_HAPI_NIGERIA_TECHNICAL_RECONNAISSANCE.md
-hdx_api_reference.md
-IMPLEMENTATION_PLAN.md
+
 
 # Learning & Walkthrough Guides (User Reference)
-STEP_BY_STEP_LEARNING_LOG.md
 *_LOG.md
-*learning_log*
+
 
 
 # IDE & OS Specific
@@ -44,13 +38,10 @@ STEP_BY_STEP_LEARNING_LOG.md
 Thumbs.db
 
 # Additional root scratch files
-getting_started.md
 *.py
 !src/**/*.py
 !tests/**/*.py
 
 
-IMPLEMENTATION_PLAN.md
-*IMPLEMENTATION_PLAN*
 
-
+personal-docs
