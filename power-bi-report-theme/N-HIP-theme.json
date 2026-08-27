@@ -1,0 +1,14 @@
+{
+  "name": "N-HIP Humanitarian Intelligence",
+  "dataColors": [
+    "#0072BC",
+    "#E11D48",
+    "#EA580C",
+    "#10B981",
+    "#6366F1",
+    "#64748B"
+  ],
+  "background": "#F8FAFC",
+  "foreground": "#0F172A",
+  "tableAccent": "#0072BC"
+}

@@ -6,6 +6,7 @@ from pydantic import Field
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
+    APP_ENV: str = Field(default="development", description="Application Environment: production, staging, development, test")
     # HDX HAPI Settings
     hdx_hapi_app_name: str = Field(default="NigeriaHIMS", alias="HDX_HAPI_APP_NAME")
     hdx_hapi_email: str = Field(default="user@example.com", alias="HDX_HAPI_EMAIL")
@@ -33,3 +34,4 @@ class Settings(BaseSettings):
         return url
 
 settings = Settings()
+
