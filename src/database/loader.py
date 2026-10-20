@@ -33,6 +33,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0,))
         return self._execute_bulk(query, tuples)
 
     def upsert_admin1(self, records: List[Dict[str, Any]]) -> int:
@@ -56,6 +57,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0,))
         return self._execute_bulk(query, tuples)
 
     def upsert_admin2(self, records: List[Dict[str, Any]]) -> int:
@@ -80,6 +82,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0,))
         return self._execute_bulk(query, tuples)
 
     def upsert_orgs(self, records: List[Dict[str, Any]]) -> int:
@@ -102,6 +105,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0,))
         return self._execute_bulk(query, tuples)
 
     def upsert_sectors(self, records: List[Dict[str, Any]]) -> int:
@@ -115,6 +119,7 @@ class DatabaseLoader:
                 updated_at = NOW();
         """
         tuples = [(r["sector_code"], r["sector_name"]) for r in records]
+        tuples = self._deduplicate_tuples(tuples, (0,))
         return self._execute_bulk(query, tuples)
 
     def upsert_population(self, records: List[Dict[str, Any]]) -> int:
@@ -140,6 +145,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0, 1, 2, 3, 4))
         return self._execute_bulk(query, tuples)
 
     def upsert_humanitarian_needs(self, records: List[Dict[str, Any]]) -> int:
@@ -175,6 +181,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0, 1, 2, 3, 4, 5, 6, 7))
         return self._execute_bulk(query, tuples)
 
     def upsert_idps(self, records: List[Dict[str, Any]]) -> int:
@@ -200,6 +207,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0, 1, 2))
         return self._execute_bulk(query, tuples)
 
     def upsert_operational_presence(self, records: List[Dict[str, Any]]) -> int:
@@ -229,6 +237,7 @@ class DatabaseLoader:
             )
             for r in records
         ]
+        tuples = self._deduplicate_tuples(tuples, (0, 1, 2, 3))
         return self._execute_bulk(query, tuples)
 
     def _ensure_sectors_exist(self, sector_codes: set):
@@ -256,7 +265,7 @@ class DatabaseLoader:
             INSERT INTO core.dim_organization (org_acronym, org_name, org_type_code, org_type_description)
             VALUES %s
             ON CONFLICT (org_acronym) DO NOTHING;
-        """, list(org_tuples))
+        """, self._deduplicate_tuples(list(org_tuples), (0,)))
         cur.close()
         conn.close()
 
@@ -272,3 +281,18 @@ class DatabaseLoader:
         cur.close()
         conn.close()
         return total_rows
+
+    @staticmethod
+    def _deduplicate_tuples(
+        tuples: list,
+        conflict_indexes: tuple[int, ...],
+    ) -> list:
+        """Remove duplicate rows for a database conflict key before bulk upsert."""
+        seen = set()
+        deduplicated = []
+        for row in tuples:
+            conflict_key = tuple(row[index] for index in conflict_indexes)
+            if conflict_key not in seen:
+                seen.add(conflict_key)
+                deduplicated.append(row)
+        return deduplicated
