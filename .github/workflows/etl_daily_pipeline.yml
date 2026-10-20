@@ -23,6 +23,8 @@ jobs:
     name: Execute HDX HAPI Ingestion & Spatial Seeding
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      TARGET_COUNTRY_CODE: ${{ github.event.inputs.country_code || 'NGA' }}
 
     steps:
       - name: Checkout Code Repository
@@ -55,7 +57,6 @@ jobs:
           DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
           HDX_HAPI_APP_NAME: ${{ secrets.HDX_HAPI_APP_NAME || 'NigeriaHIMS' }}
           HDX_HAPI_EMAIL: ${{ secrets.HDX_HAPI_EMAIL || 'pipeline@humdata.org' }}
-          TARGET_COUNTRY_CODE: ${{ github.event.inputs.country_code || 'NGA' }}
         run: |
           python -m src.pipeline.orchestrator --country ${{ env.TARGET_COUNTRY_CODE }}
 
