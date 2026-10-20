@@ -46,7 +46,8 @@ jobs:
         run: python -m compileall -q src
 
       - name: Verify Pipeline Imports
-        run: python -c "from src.pipeline.orchestrator import PipelineOrchestrator; from src.transformation.transformer import DataTransformer; assert callable(DataTransformer.transform_humanitarian_needs); print('Pipeline imports and transformer wiring: OK')"
+        run: |
+          python -c "from src.pipeline.orchestrator import PipelineOrchestrator; from src.transformation.transformer import DataTransformer; assert callable(DataTransformer.transform_humanitarian_needs); print('Pipeline imports and transformer wiring: OK')"
 
       - name: Execute N-HIP Master Pipeline Orchestrator
         env:
