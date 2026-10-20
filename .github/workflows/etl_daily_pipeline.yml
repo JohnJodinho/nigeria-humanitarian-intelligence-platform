@@ -11,6 +11,13 @@ on:
         required: true
         default: 'NGA'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: etl-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   run-ingestion-pipeline:
     name: Execute HDX HAPI Ingestion & Spatial Seeding
@@ -19,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout Code Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -31,6 +38,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Validate Installed Dependencies
+        run: python -m pip check
+
+      - name: Compile Python Sources
+        run: python -m compileall -q src
+
+      - name: Verify Pipeline Imports
+        run: python -c "from src.pipeline.orchestrator import PipelineOrchestrator; from src.transformation.transformer import DataTransformer; assert callable(DataTransformer.transform_humanitarian_needs); print('Pipeline imports and transformer wiring: OK')"
 
       - name: Execute N-HIP Master Pipeline Orchestrator
         env:
@@ -49,4 +65,3 @@ jobs:
           echo "Pipeline executed at $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Target Country:** ${{ env.TARGET_COUNTRY_CODE }}" >> $GITHUB_STEP_SUMMARY
-

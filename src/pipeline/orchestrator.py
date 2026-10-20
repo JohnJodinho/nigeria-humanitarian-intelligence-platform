@@ -109,7 +109,7 @@ class PipelineOrchestrator:
             name="fact_humanitarian_needs",
             endpoint=endpoints.EP_HUMANITARIAN_NEEDS,
             model_cls=HumanitarianNeedsRecord,
-            transform_fn=DataTransformer.transform_needs,
+            transform_fn=DataTransformer.transform_humanitarian_needs,
             upsert_fn=self.loader.upsert_humanitarian_needs
         )
 

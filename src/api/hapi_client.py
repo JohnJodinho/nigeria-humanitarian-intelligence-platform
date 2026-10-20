@@ -55,32 +55,7 @@ class HAPIClient:
         max_retries = 3
         
         while True:
-            data = []
-            for attempt in range(1, max_retries + 1):
-                try:
-                    logger.info(f"Fetching {endpoint} [offset={query_params['offset']}, limit={query_params['limit']}]")
-                    start_t = time.time()
-                    resp = self.session.get(url, params=query_params, timeout=45)
-                    latency = round((time.time() - start_t) * 1000)
-
-                    if resp.status_code == 429:
-                        wait = 2 ** attempt * 2
-                        logger.warning(f"Rate limited (429). Retrying in {wait}s...")
-                        time.sleep(wait)
-                        continue
-
-                    resp.raise_for_status()
-                    payload = resp.json()
-                    data = payload.get("data", [])
-                    logger.debug(f"Received {len(data)} records in {latency}ms")
-                    break
-                except (requests.RequestException, ValueError) as e:
-                    if attempt == max_retries:
-                        logger.error(f"Fatal error fetching {endpoint} after {max_retries} attempts: {e}")
-                        raise
-                    wait = 2 ** attempt
-                    logger.warning(f"Attempt {attempt} failed: {e}. Retrying in {wait}s...")
-                    time.sleep(wait)
+            data = self._fetch_page(url, endpoint, query_params, max_retries)
 
             if not data:
                 break
@@ -88,9 +63,72 @@ class HAPIClient:
             all_records.extend(data)
             logger.info(f"Retrieved {len(data)} records from {endpoint} (Cumulative: {len(all_records)})")
 
-            if len(data) < query_params["limit"] or (max_records and len(all_records) >= max_records):
+            if self._should_stop_pagination(data, query_params["limit"], max_records, len(all_records)):
                 break
 
             query_params["offset"] += len(data)
 
         return all_records[:max_records] if max_records else all_records
+
+    def _fetch_page(
+        self,
+        url: str,
+        endpoint: str,
+        query_params: Dict[str, Any],
+        max_retries: int,
+    ) -> List[Dict[str, Any]]:
+        """Fetch one HAPI page with bounded retries."""
+        for attempt in range(1, max_retries + 1):
+            try:
+                return self._request_page(url, endpoint, query_params, attempt, max_retries)
+            except (requests.RequestException, ValueError) as error:
+                if attempt == max_retries:
+                    logger.error(
+                        f"Fatal error fetching {endpoint} after {max_retries} attempts: {error}"
+                    )
+                    raise
+                wait = 2 ** attempt
+                logger.warning(f"Attempt {attempt} failed: {error}. Retrying in {wait}s...")
+                time.sleep(wait)
+        return []
+
+    def _request_page(
+        self,
+        url: str,
+        endpoint: str,
+        query_params: Dict[str, Any],
+        attempt: int,
+        max_retries: int,
+    ) -> List[Dict[str, Any]]:
+        """Issue one HAPI request and decode its records."""
+        logger.info(
+            f"Fetching {endpoint} "
+            f"[offset={query_params['offset']}, limit={query_params['limit']}]"
+        )
+        start_t = time.time()
+        response = self.session.get(url, params=query_params, timeout=45)
+        latency = round((time.time() - start_t) * 1000)
+
+        if response.status_code == 429:
+            if attempt == max_retries:
+                response.raise_for_status()
+            wait = 2 ** attempt * 2
+            logger.warning(f"Rate limited (429). Retrying in {wait}s...")
+            time.sleep(wait)
+            raise requests.RequestException("HAPI rate limit response")
+
+        response.raise_for_status()
+        payload = response.json()
+        data = payload.get("data", [])
+        logger.debug(f"Received {len(data)} records in {latency}ms")
+        return data
+
+    @staticmethod
+    def _should_stop_pagination(
+        page: List[Dict[str, Any]],
+        page_limit: int,
+        max_records: Optional[int],
+        total_records: int,
+    ) -> bool:
+        """Return whether the current page completes the requested fetch."""
+        return len(page) < page_limit or bool(max_records and total_records >= max_records)

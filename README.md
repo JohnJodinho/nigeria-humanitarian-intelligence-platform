@@ -147,7 +147,7 @@ flowchart TD
 
 | Layer | Technologies | Purpose |
 | :--- | :--- | :--- |
-| **Ingestion & ETL** | Python 3.12, Requests, Tenacity | Resilient HTTP extraction with Base64 authentication & exponential backoff |
+| **Ingestion & ETL** | Python 3.12, Requests | Resilient HTTP extraction with Base64 authentication & exponential backoff |
 | **Data Validation** | Pydantic v2 | Strict schema validation and quarantine routing for corrupted records |
 | **Spatial Processing**| GeoPandas, Shapely, TopoJSON | PostGIS polygon boundary normalization and choropleth mapping |
 | **Database & GIS** | PostgreSQL 17, PostGIS 3.4, Supabase | High-performance spatial data warehousing and relational star schema |
@@ -172,21 +172,20 @@ cd nigeria-humanitarian-intelligence-platform
 ### 2. Environment Configuration
 Create a `.env` file in the root directory:
 ```env
-# Database Credentials
-DB_HOST=aws-0-eu-central-1.pooler.supabase.com
-DB_PORT=5432
-DB_NAME=postgres
-DB_USER=postgres.fusxxjppszljvwfgcfhr
-DB_PASSWORD=your_secure_password
-DB_SSLMODE=require
+# Database connection URL
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
 
 # HDX HAPI API Credentials
-HDX_HAPI_APP_IDENTIFIER=your_base64_encoded_app_identifier
-HDX_HAPI_BASE_URL=https://hapi.humdata.org/api/v2
+HDX_HAPI_APP_NAME=NigeriaHIMS
+HDX_HAPI_EMAIL=your_email@example.com
+HDX_HAPI_BASE_URL=https://hapi.humdata.org
 
 # Environment Tagging
 APP_ENV=development
 ```
+
+The workflow uses the same variables through GitHub Actions secrets. Do not commit
+`.env`; use `.env.example` as the local template.
 
 ### 3. Install Dependencies
 ```bash
@@ -201,11 +200,9 @@ pip install -r requirements.txt
 
 ### 4. Run Migrations & Ingestion Pipeline
 ```bash
-# Execute DDL schema migrations and seed database
-python -m src.database.migrations
-
-# Run full end-to-end extraction and load pipeline
-python -m src.pipeline
+# Execute the SQL files in sql/001 through sql/005 against PostgreSQL/Supabase
+# Then run the full end-to-end extraction and load pipeline
+python -m src.pipeline.orchestrator --country NGA
 ```
 
 ### 5. Run Test Suite

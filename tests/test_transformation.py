@@ -20,3 +20,29 @@ def test_transform_orgs_cleaning():
     transformed = DataTransformer.transform_orgs(records)
     assert len(transformed) == 1
     assert transformed[0]["org_acronym"] == "UNICEF"
+
+
+def test_transform_humanitarian_needs_normalizes_categories():
+    records = [
+        {
+            "admin2_code": "NGA001001",
+            "sector_code": "INTERSECTORAL",
+            "category": " total ",
+            "population_status": "INN",
+            "reference_period_start": "2026-01-01T00:00:00",
+            "population": 100,
+        },
+        {
+            "admin2_code": "NGA001001",
+            "sector_code": "INTERSECTORAL",
+            "category": "Total",
+            "population_status": "INN",
+            "reference_period_start": "2026-01-01T00:00:00",
+            "population": 100,
+        },
+    ]
+
+    transformed = DataTransformer.transform_humanitarian_needs(records)
+
+    assert len(transformed) == 1
+    assert transformed[0]["category"] == "Total"

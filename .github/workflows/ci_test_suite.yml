@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-tests:
     name: Run Pytest Suite & Syntax Validation
@@ -14,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -28,7 +35,15 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Validate Installed Dependencies
+        run: python -m pip check
+
+      - name: Compile Python Sources
+        run: python -m compileall -q src tests
+
+      - name: Verify Pipeline Imports
+        run: python -c "from src.pipeline.orchestrator import PipelineOrchestrator; from src.transformation.transformer import DataTransformer; assert callable(DataTransformer.transform_humanitarian_needs); print('Pipeline imports and transformer wiring: OK')"
+
       - name: Run Pytest Suite
         run: |
           pytest tests/ -v --tb=short
-
